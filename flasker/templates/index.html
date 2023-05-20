@@ -1,3 +1,23 @@
 <h1> Hello world </h1>
 
 <p>This is my first web page</p>
+
+<p>My name is {{ first_name|capitalize  }}</p>
+
+<p>{{ stuff|title|safe }}</p>
+
+{{ favorite_pizza }}
+
+<h3>My Favorite Pizza</h3>
+{% for element in favorite_pizza %}
+    <li>{% if element == 41 %}
+            {{ element + 100 }}<br/>
+        {% else %}
+            {{ element }}<br/>
+        {% endif %}</li>
+
+{% endfor %}
+
+<br/><br/>
+
+{{ favorite_pizza.0 }}

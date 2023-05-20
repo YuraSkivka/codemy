@@ -40,21 +40,36 @@ m_log = MakeLog.logger
 with app.app_context():
     db.create_all()
 
+
+
 # create a route decorator
 @app.route('/')
+# https://jinja.palletsprojects.com/en/3.1.x/templates/#list-of-builtin-filters
+# upper - все большими
+# lower - все маленькими
+# capitalize - первая буква большая
+# safe - сохраняет html теги
+# striptags - удаляет html теги
+# title - все будут с большой буквы
+# trim - удаляет пробелы в начале и в конце строки
 def index():
     m_log.info("open /")
-    return render_template("index.html")
-# def index():
-#     m_log.info("open /")
-#     return "hello"
+    first_name = "John"
+    stuff = "This is <strong>Bold</strong> text"
 
+    favorite_pizza = ["pepperoni", "cheese", "mushhrooms", 41]
+    return render_template("index.html",
+                           first_name=first_name,
+                           stuff=stuff,
+                           favorite_pizza=favorite_pizza)
+
+# localhost:5000/user/John
 @app.route('/user/<name>')
 def user(name):
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#filters
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#id11
     m_log.info("open /user")
-    return f"<h1> Hello {name}!</h1>"
+    return  render_template("user.html", user_name=name)
 
 # обработка ошибок
 @app.errorhandler(404)
