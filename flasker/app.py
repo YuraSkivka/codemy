@@ -1,6 +1,8 @@
 import os
 from MakeLog import MakeLog
+# pip install flask
 from flask import Flask, render_template, flash, request, redirect
+# pip install flask-wtf
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
@@ -11,34 +13,44 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 HOME = os.path.expanduser("~")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+m_log = MakeLog.logger
 
-# create the extension
-db = SQLAlchemy()
-# for migrate
-migrate = Migrate()
 # create the flask instance
+# https://flask.palletsprojects.com/en/1.1.x/config/
 app = Flask(__name__)
 # configure the SQLite database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(BASE_DIR, 'test.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# initialize the app with the extension
-db.init_app(app)
-# migration
-migrate.init_app(app, db)
-
+# secret key, used like token in wtf
+app.config['SECRET_KEY'] = "chang it in your project"
 # Environment and Debug Features
-# secret key
-app.config['SECRET_KEY'] = "SECRET_KEY"
 # Setting FLASK_ENV to development will enable debug mode
 app.config['FLASK_ENV'] = 'development'
 # name main flask file
 app.config['FLASK_APP'] = 'app.py'
 
-m_log = MakeLog.logger
+# create the extension
+db = SQLAlchemy()
+# for migrate
+migrate = Migrate()
+# initialize the app with the extension
+db.init_app(app)
+# migration
+migrate.init_app(app, db)
+
 
 # db create
 with app.app_context():
     db.create_all()
+
+
+# create a form class
+# https://flask.palletsprojects.com/en/2.2.x/patterns/wtforms/
+# https://flask-wtf.readthedocs.io/en/1.0.x/api/#module-flask_wtf
+# https://wtforms.readthedocs.io/en/3.0.x/fields/
+class NameForm(FlaskForm):
+    name = StringField("What is Your Name", validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 # Bootstrap
 # https://getbootstrap.com/docs/5.3/getting-started/introduction/
@@ -71,7 +83,21 @@ def user(name):
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#filters
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#id11
     m_log.info("open /user")
-    return  render_template("user.html", user_name=name)
+    return render_template("user.html", user_name=name)
+
+# create name page
+@app.route('/name', methods=["GET", "POST"])
+def name():
+    m_log.info("open /name")
+    name = None
+    form = NameForm()
+    # Validate Form
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template("name.html",
+                           name=name,
+                           form=form)
 
 # обработка ошибок
 # Invalid URL
