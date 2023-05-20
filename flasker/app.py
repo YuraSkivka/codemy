@@ -7,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import datetime
+# pip install flask-sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -19,7 +20,7 @@ m_log = MakeLog.logger
 # https://flask.palletsprojects.com/en/1.1.x/config/
 app = Flask(__name__)
 # configure the SQLite database, relative to the app instance folder
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(BASE_DIR, 'test.db')
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(BASE_DIR, 'flask.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # secret key, used like token in wtf
 app.config['SECRET_KEY'] = "chang it in your project"
@@ -31,13 +32,28 @@ app.config['FLASK_APP'] = 'app.py'
 
 # create the extension
 db = SQLAlchemy()
-# for migrate
-migrate = Migrate()
 # initialize the app with the extension
 db.init_app(app)
+# for migrate
+migrate = Migrate()
 # migration
 migrate.init_app(app, db)
 
+
+# Create Model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.now())
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
+    # Create a String
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 # db create
 with app.app_context():
@@ -50,6 +66,11 @@ with app.app_context():
 # https://wtforms.readthedocs.io/en/3.0.x/fields/
 class NameForm(FlaskForm):
     name = StringField("What is Your Name", validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+class UserForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 # Bootstrap
@@ -82,7 +103,7 @@ def index():
 def user(name):
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#filters
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#id11
-    m_log.info("open /user")
+    m_log.info(f"open /user/{name}")
     return render_template("user.html", user_name=name)
 
 # create name page
@@ -99,6 +120,27 @@ def name():
     return render_template("name.html",
                            name=name,
                            form=form)
+
+@app.route('/user/add', methods=["GET", "POST"])
+def add_user():
+    m_log.info("open /user/add")
+    name = None
+    form = UserForm()
+    # Validate Form
+    if form.validate_on_submit():
+        if User.query.filter_by(email=form.email.data).first() is None:
+            user = User(name=form.name.data, email=form.email.data)
+            db.session.add(user)
+            db.session.commit()
+        name = form.name.data
+        form.name.data = ''
+        form.email.data = ''
+        flash('User Added Successfully!')
+    our_users = User.query.order_by(User.date_added)
+    return render_template("add_user.html",
+                           name=name,
+                           form=form,
+                           our_users=our_users)
 
 # обработка ошибок
 # Invalid URL
