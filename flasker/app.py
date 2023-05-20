@@ -40,7 +40,9 @@ m_log = MakeLog.logger
 with app.app_context():
     db.create_all()
 
-
+# Bootstrap
+# https://getbootstrap.com/docs/5.3/getting-started/introduction/
+# https://getbootstrap.com/docs/5.3/components/navbar/
 
 # create a route decorator
 @app.route('/')
