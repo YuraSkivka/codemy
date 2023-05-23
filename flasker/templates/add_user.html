@@ -22,6 +22,7 @@ UserAdd
             <a href="{{ url_for('update', id=user.id) }}" style="display:block;"> {{ user.name }} </a>
             {{ user.email }}
             {{ user.favorite_color }}
+            <a href="{{ url_for('delete', id=user.id) }}" style="display:block;"> Delete </a>
 	    </li>
         {% endfor  %}
 
@@ -38,6 +39,9 @@ UserAdd
         {{ form.email.label(class="form-label") }}
         {{ form.email(class="form-control") }}
         <br>
+        {{ form.favorite_color.label(class="form-label") }}
+        {{ form.favorite_color(class="form-control") }}
+        <br>
         {{ form.submit(class="btn btn-primary") }}
     </form>
 </div>
@@ -49,6 +53,7 @@ UserAdd
             <th scope="col">name</th>
             <th scope="col">email</th>
             <th scope="col">favorite color</th>
+            <th scope="col">options</th>
 
         </tr>
         <tbody class="table-group-divider">
@@ -58,6 +63,7 @@ UserAdd
             <td><a href="{{ url_for('update', id=user.id) }}" style="display:block;"> {{ user.name }} </a></td>
             <td>{{ user.email }}</td>
             <td>{{ user.favorite_color }}</td>
+            <td><a href="{{ url_for('delete', id=user.id) }}" style="display:block;"> Delete </a></td>
         </tr>
         {% endfor  %}
     </table>

@@ -151,6 +151,7 @@ def add_user():
 #Update DataBase Record
 @app.route("/update/<int:id>", methods=["GET", "POST"])
 def update(id):
+    m_log.info(f"open /update/{id}")
     form = UserForm()
     user_to_update = User.query.get_or_404(id)
     if request.method == "POST":
@@ -162,7 +163,8 @@ def update(id):
             flash('Form Update Successfully!')
             return render_template("update.html",
                                    form=form,
-                                   user_to_update=user_to_update)
+                                   user_to_update=user_to_update,
+                                   id=id)
         except:
             flash('Form Update Error!')
             return render_template("update.html",
@@ -174,6 +176,33 @@ def update(id):
                                form=form,
                                user_to_update=user_to_update,
                                id=id)
+
+
+@app.route("/delete/<int:id>", methods=["GET", "POST"])
+def delete(id):
+    m_log.info(f"open /delete {id}")
+
+    name = None
+    user_to_delete = User.query.get_or_404(id)
+    form = UserForm()
+    try:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+
+        our_users = User.query.order_by(User.date_added)
+        flash('Form Delete Successfully!')
+        return render_template("add_user.html",
+                               name=name,
+                               form=form,
+                               our_users=our_users)
+
+    except:
+        flash('Form Delete Error!')
+        return render_template("add_user.html",
+                               name=name,
+                               form=form,
+                               our_users=our_users)
+
 
 # обработка ошибок
 # Invalid URL
