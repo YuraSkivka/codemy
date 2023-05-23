@@ -21,6 +21,7 @@ UserAdd
         <li>
             <a href="{{ url_for('update', id=user.id) }}" style="display:block;"> {{ user.name }} </a>
             {{ user.email }}
+            {{ user.favorite_color }}
 	    </li>
         {% endfor  %}
 
@@ -47,6 +48,8 @@ UserAdd
             <th scope="col">#</th>
             <th scope="col">name</th>
             <th scope="col">email</th>
+            <th scope="col">favorite color</th>
+
         </tr>
         <tbody class="table-group-divider">
         {% for user in our_users  %}
@@ -54,6 +57,7 @@ UserAdd
             <td scope="row">{{ user.id }}</td>
             <td><a href="{{ url_for('update', id=user.id) }}" style="display:block;"> {{ user.name }} </a></td>
             <td>{{ user.email }}</td>
+            <td>{{ user.favorite_color }}</td>
         </tr>
         {% endfor  %}
     </table>

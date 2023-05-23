@@ -9,6 +9,7 @@ from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import datetime
 # pip install flask-sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
+# pip install Flask-Migrate
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -45,11 +46,13 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
+    favorite_color = db.Column(db.String(100))
     date_added = db.Column(db.DateTime, default=datetime.now())
 
-    def __init__(self, name, email):
+    def __init__(self, name, email, favorite_color):
         self.name = name
         self.email = email
+        self.favorite_color = favorite_color
 
     # Create a String
     def __repr__(self):
@@ -71,6 +74,7 @@ class NameForm(FlaskForm):
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
+    favorite_color = StringField("Favorite Colore")
     submit = SubmitField('Submit')
 
 # Bootstrap
@@ -129,12 +133,13 @@ def add_user():
     # Validate Form
     if form.validate_on_submit():
         if User.query.filter_by(email=form.email.data).first() is None:
-            user = User(name=form.name.data, email=form.email.data)
+            user = User(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
+        form.favorite_color.data = ''
         flash('User Added Successfully!')
     our_users = User.query.order_by(User.date_added)
     return render_template("add_user.html",
@@ -151,6 +156,7 @@ def update(id):
     if request.method == "POST":
         user_to_update.name = request.form['name']
         user_to_update.email = request.form['email']
+        user_to_update.favorite_color = request.form['favorite_color']
         try:
             db.session.commit()
             flash('Form Update Successfully!')

@@ -1,0 +1,6 @@
+если имя файла отличается от стандартного 'wsgi.py' or 'app.py', появится ошибка
+Error: Could not locate a Flask application. Use the 'flask --app' option, 'FLASK_APP' environment variable
+решается очень просто, через параметр --app и имя файла, без расширения
+flask --app <server_name> db init
+flask --app <server_name> db migrate --message "Ititial Migration"
+flask --app <server_name> db upgrade
