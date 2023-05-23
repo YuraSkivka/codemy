@@ -142,6 +142,33 @@ def add_user():
                            form=form,
                            our_users=our_users)
 
+
+#Update DataBase Record
+@app.route("/update/<int:id>", methods=["GET", "POST"])
+def update(id):
+    form = UserForm()
+    user_to_update = User.query.get_or_404(id)
+    if request.method == "POST":
+        user_to_update.name = request.form['name']
+        user_to_update.email = request.form['email']
+        try:
+            db.session.commit()
+            flash('Form Update Successfully!')
+            return render_template("update.html",
+                                   form=form,
+                                   user_to_update=user_to_update)
+        except:
+            flash('Form Update Error!')
+            return render_template("update.html",
+                                   form=form,
+                                   user_to_update=user_to_update)
+
+    else:
+        return render_template("update.html",
+                               form=form,
+                               user_to_update=user_to_update,
+                               id=id)
+
 # обработка ошибок
 # Invalid URL
 @app.errorhandler(404)

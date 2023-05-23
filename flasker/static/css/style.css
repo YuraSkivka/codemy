@@ -13,3 +13,9 @@ h1 {
     font-size: 10px;
     color: chocolate;
 }
+
+.table a
+{
+    display:block;
+    text-decoration:none;
+}
