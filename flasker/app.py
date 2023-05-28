@@ -93,6 +93,12 @@ class UserForm(FlaskForm):
     password_hash2 = PasswordField('Confirm password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+class PasswordForm(FlaskForm):
+    email = StringField("What is Your Email", validators=[DataRequired()])
+    password_hash = PasswordField("What is Your Password", validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
 # Bootstrap
 # https://getbootstrap.com/docs/5.3/getting-started/introduction/
 # https://getbootstrap.com/docs/5.3/components/navbar/
@@ -139,6 +145,36 @@ def name():
         flash('Form Submit Successfully!')
     return render_template("name.html",
                            name=name,
+                           form=form)
+
+# create password test page
+@app.route('/test_pw', methods=["GET", "POST"])
+def test_pw():
+    m_log.info("open /test_pw")
+    email = None
+    password = None
+    pw_to_check = None
+    passed = None
+    form = PasswordForm()
+    # Validate Form
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password_hash.data
+        form.email.data = ''
+        form.password_hash.data = ''
+
+        # look up user by email
+        pw_to_check = User.query.filter_by(email=email).first()
+
+        # check hashed password
+        passed = check_password_hash(pw_to_check.password_hash, password)
+
+        # flash('Form Submit Successfully!')
+    return render_template("test_pw.html",
+                           email=email,
+                           password=password,
+                           pw_to_check=pw_to_check,
+                           passed=passed,
                            form=form)
 
 @app.route('/user/add', methods=["GET", "POST"])
