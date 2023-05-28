@@ -48,11 +48,25 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     favorite_color = db.Column(db.String(100))
     date_added = db.Column(db.DateTime, default=datetime.now())
+    # DO SOME user stuff
+    password_hash = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, name, email, favorite_color):
+    @property
+    def password(self):
+        raise AttributeError('password not readable')
+
+    @password.setter
+    def password(self, p):
+        self.password_hash = generate_password_hash(p)
+
+    def verify_password(self, p):
+        return check_password_hash(self.password_hash, p)
+
+    def __init__(self, name, email, favorite_color, password_hash):
         self.name = name
         self.email = email
         self.favorite_color = favorite_color
+        self.password_hash = password_hash
 
     # Create a String
     def __repr__(self):
@@ -75,6 +89,8 @@ class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
     favorite_color = StringField("Favorite Colore")
+    password_hash = PasswordField('Your password', validators=[DataRequired(), EqualTo('password_hash2', message='password must mach ')])
+    password_hash2 = PasswordField('Confirm password', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 # Bootstrap
@@ -133,13 +149,17 @@ def add_user():
     # Validate Form
     if form.validate_on_submit():
         if User.query.filter_by(email=form.email.data).first() is None:
-            user = User(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data)
+            # hash password
+            hashed_PW = generate_password_hash(form.password_hash.data, "sha256")
+            user = User(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data, password_hash=hashed_PW)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
         form.favorite_color.data = ''
+        form.password_hash.data = ''
+        form.password_hash2.data = ''
         flash('User Added Successfully!')
     our_users = User.query.order_by(User.date_added)
     return render_template("add_user.html",
