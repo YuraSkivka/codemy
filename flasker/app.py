@@ -6,6 +6,7 @@ from flask import Flask, render_template, flash, request, redirect, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.widgets import TextArea
 from datetime import datetime, date
 # pip install flask-sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -41,6 +42,16 @@ migrate = Migrate()
 migrate.init_app(app, db)
 
 
+# Create a Blog Post model
+class Posts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(255), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.now())
+    slug = db.Column(db.String(255), nullable=False)
+
+
 # Create Model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -72,6 +83,7 @@ class User(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+
 # db create
 with app.app_context():
     db.create_all()
@@ -85,13 +97,16 @@ class NameForm(FlaskForm):
     name = StringField("What is Your Name", validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
     favorite_color = StringField("Favorite Colore")
-    password_hash = PasswordField('Your password', validators=[DataRequired(), EqualTo('password_hash2', message='password must mach ')])
+    password_hash = PasswordField('Your password',
+                                  validators=[DataRequired(), EqualTo('password_hash2', message='password must mach ')])
     password_hash2 = PasswordField('Confirm password', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
 
 class PasswordForm(FlaskForm):
     email = StringField("What is Your Email", validators=[DataRequired()])
@@ -124,6 +139,7 @@ def index():
                            stuff=stuff,
                            favorite_pizza=favorite_pizza)
 
+
 # localhost:5000/user/John
 @app.route('/user/<name>')
 def user(name):
@@ -131,6 +147,7 @@ def user(name):
     # https://jinja.palletsprojects.com/en/3.1.x/templates/#id11
     m_log.info(f"open /user/{name}")
     return render_template("user.html", user_name=name)
+
 
 # create name page
 @app.route('/name', methods=["GET", "POST"])
@@ -146,6 +163,7 @@ def name():
     return render_template("name.html",
                            name=name,
                            form=form)
+
 
 # create password test page
 @app.route('/test_pw', methods=["GET", "POST"])
@@ -177,6 +195,7 @@ def test_pw():
                            passed=passed,
                            form=form)
 
+
 @app.route('/user/add', methods=["GET", "POST"])
 def add_user():
     m_log.info("open /user/add")
@@ -187,7 +206,8 @@ def add_user():
         if User.query.filter_by(email=form.email.data).first() is None:
             # hash password
             hashed_PW = generate_password_hash(form.password_hash.data, "sha256")
-            user = User(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data, password_hash=hashed_PW)
+            user = User(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
+                        password_hash=hashed_PW)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
@@ -204,7 +224,7 @@ def add_user():
                            our_users=our_users)
 
 
-#Update DataBase Record
+# Update DataBase Record
 @app.route("/update/<int:id>", methods=["GET", "POST"])
 def update(id):
     m_log.info(f"open /update/{id}")
@@ -260,11 +280,43 @@ def delete(id):
                                our_users=our_users)
 
 
+# Create Post Form
+class PostForm(FlaskForm):
+    title = StringField("Title", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Author", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+# Add Posts Page
+@app.route('/add_post', methods=["GET", "POST"])
+def add_post():
+    m_log.info(f"open /add-post")
+    form = PostForm()
+
+    if form.validate_on_submit():
+        post = Posts(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+        # clear the form
+        form.title.data = ''
+        form.content.data = ''
+        form.author.data = ''
+        form.slug.data = ''
+        # add post to db
+        db.session.add(post)
+        db.session.commit()
+
+        flash("Blog Post submit success")
+    # Redirect to the wevpage
+    return render_template("add_post.html", form=form)
+
+
 # обработка ошибок
 # Invalid URL
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("error_404.html"), 404
+
 
 # Internal Server Error
 @app.errorhandler(500)
@@ -282,7 +334,6 @@ def get_current_date():
     }
     return jsonify(favorite_pizza)
     # return {"Date": date.today()}
-
 
 
 if __name__ == '__main__':
