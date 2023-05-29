@@ -1,12 +1,12 @@
 import os
 from MakeLog import MakeLog
 # pip install flask
-from flask import Flask, render_template, flash, request, redirect
+from flask import Flask, render_template, flash, request, redirect, jsonify
 # pip install flask-wtf
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
-from datetime import datetime
+from datetime import datetime, date
 # pip install flask-sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 # pip install Flask-Migrate
@@ -270,6 +270,19 @@ def page_not_found(e):
 @app.errorhandler(500)
 def server_die(e):
     return render_template("error_500.html"), 500
+
+
+# Json Thin
+@app.route('/date')
+def get_current_date():
+    favorite_pizza = {
+        "John": "Pepperoni",
+        "Merry": "Cheese",
+        "Tim": "Mushroom"
+    }
+    return jsonify(favorite_pizza)
+    # return {"Date": date.today()}
+
 
 
 if __name__ == '__main__':
