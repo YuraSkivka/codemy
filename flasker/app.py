@@ -289,6 +289,13 @@ class PostForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+@app.route('/posts')
+def posts():
+    m_log.info(f"open /posts")
+    # Grab all posts from database
+    posts = Posts.query.order_by(Posts.date_added)
+    return render_template("posts.html", posts=posts)
+
 # Add Posts Page
 @app.route('/add_post', methods=["GET", "POST"])
 def add_post():
