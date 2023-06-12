@@ -11,7 +11,6 @@ UserAdd
         {{ massage }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
     {% endfor %}
 
     {% if name  %}
@@ -36,6 +35,9 @@ UserAdd
         {{ form.name.label(class="form-label") }}
         {{ form.name(class="form-control") }}
         <br>
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+        <br>
         {{ form.email.label(class="form-label") }}
         {{ form.email(class="form-control") }}
         <br>
@@ -57,6 +59,7 @@ UserAdd
         <tr>
             <th scope="col">#</th>
             <th scope="col">name</th>
+            <th scope="col">username</th>
             <th scope="col">email</th>
             <th scope="col">favorite color</th>
             <th scope="col">password</th>
@@ -68,6 +71,7 @@ UserAdd
         <tr>
             <td scope="row">{{ user.id }}</td>
             <td><a href="{{ url_for('update', id=user.id) }}" style="display:block;"> {{ user.name }} </a></td>
+            <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.favorite_color }}</td>
             <td>{{ user.password_hash }}</td>
