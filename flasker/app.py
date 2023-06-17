@@ -48,10 +48,16 @@ class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    author = db.Column(db.String(255), nullable=False)
+    # author = db.Column(db.String(255), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.now())
     slug = db.Column(db.String(255), nullable=False)
-
+    # foreigen key to link user (refer to primary key of the user)
+    poster_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    def __init__(self, title, content,slug, poster_id):
+        self.title = title
+        self.content = content
+        self.slug = slug
+        self.poster_id = poster_id
 
 # Create Model
 class User(db.Model, UserMixin):
@@ -63,6 +69,9 @@ class User(db.Model, UserMixin):
     date_added = db.Column(db.DateTime, default=datetime.now())
     # DO SOME user stuff
     password_hash = db.Column(db.String(100), nullable=False)
+    # User can have many posts
+    posts = db.relationship('Posts', backref='poster')
+
 
     @property
     def password(self):
@@ -295,7 +304,7 @@ def edit_post(id):
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
-        post.author = form.author.data
+        # post.author = form.author.data
         post.slug = form.slug.data
         # Update DB
         db.session.add(post)
@@ -304,7 +313,7 @@ def edit_post(id):
         return redirect(url_for('post', id=post.id))
     form.title.data = post.title
     form.content.data = post.content
-    form.author.data = post.author
+    # form.author.data = post.author
     form.slug.data = post.slug
     return render_template('edit_post.html', form=form)
 
@@ -335,14 +344,15 @@ def add_post():
     form = PostForm()
 
     if form.validate_on_submit():
+        poster = current_user.id
         post = Posts(title=form.title.data,
                      content=form.content.data,
-                     author=form.author.data,
+                     poster_id=poster,
                      slug=form.slug.data)
         # clear the form
         form.title.data = ''
         form.content.data = ''
-        form.author.data = ''
+        # form.author.data = ''
         form.slug.data = ''
         # add post to db
         db.session.add(post)

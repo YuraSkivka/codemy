@@ -21,7 +21,7 @@ Posts
 
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
         <h2><a href=" {{ url_for('post', id=post.id) }}"> {{ post.title }} </a></h2>
-        <small>By: {{ post.author }}<br>
+        <small>By: {{ post.poster.name }}<br>
             {{ post.date_added }}</small> <br><br>
         {{ post.content }}<br><br>
         <a href=" {{ url_for('post', id=post.id) }}" class='btn btn-outline-secondary btn-sm'>View Post</a>
