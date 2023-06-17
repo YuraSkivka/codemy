@@ -319,22 +319,28 @@ def edit_post(id):
 
 
 @app.route("/posts/delete/<int:id>", methods=["GET", "POST"])
+@login_required
 def delete_post(id):
     m_log.info(f"open /delete_post")
     post_to_delete = Posts.query.get_or_404(id)
-    try:
-        db.session.delete(post_to_delete)
-        db.session.commit()
+    cid = current_user.id
+    if cid == post_to_delete.poster.id:
+        try:
+            db.session.delete(post_to_delete)
+            db.session.commit()
 
-        flash('Post Was Delete Successfully!')
+            flash('Post Was Delete Successfully!')
+            posts = Posts.query.order_by(Posts.date_added)
+            return render_template("posts.html", posts=posts)
+
+        except:
+            flash('Post Delete Error!')
+            posts = Posts.query.order_by(Posts.date_added)
+            return render_template("posts.html", posts=posts)
+    else:
+        flash('You aren\'t authorized to delete thet post')
         posts = Posts.query.order_by(Posts.date_added)
         return render_template("posts.html", posts=posts)
-
-    except:
-        flash('Post Delete Error!')
-        posts = Posts.query.order_by(Posts.date_added)
-        return render_template("posts.html", posts=posts)
-
 
 # Add Posts Page
 @app.route('/add_post', methods=["GET", "POST"])
