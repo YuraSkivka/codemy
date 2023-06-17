@@ -13,6 +13,7 @@ PostAdd
     </div>
     {% endfor %}
 
+{% if current_user.is_authenticated %}
 
     <h1>ADD BLOG Post...</h1>
     <br>
@@ -35,6 +36,12 @@ PostAdd
 	        {{ form.submit(class="btn btn-primary") }}
 	    </form>
 	</div>
+{% else %}
 
+<h2>Upss...</h2>
+<p>Sorry. You must be logged in to access this page</p>
+<a href="{{ url_for('login') }}">Login</a>
+
+{% endif %}
 
 {% endblock %}

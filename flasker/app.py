@@ -316,6 +316,7 @@ def post(id):
 
 
 @app.route("/posts/edit/<int:id>", methods=["GET", "POST"])
+@login_required
 def edit_post(id):
     m_log.info(f"open /edit_post")
     post = Posts.query.get_or_404(id)
@@ -357,6 +358,7 @@ def delete_post(id):
 
 # Add Posts Page
 @app.route('/add_post', methods=["GET", "POST"])
+# @login_required
 def add_post():
     m_log.info(f"open /add-post")
     form = PostForm()
