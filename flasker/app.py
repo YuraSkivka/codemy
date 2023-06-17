@@ -245,6 +245,7 @@ def update(id):
         user_to_update.name = request.form['name']
         user_to_update.email = request.form['email']
         user_to_update.favorite_color = request.form['favorite_color']
+        user_to_update.username = request.form['username']
         try:
             db.session.commit()
             flash('Form Update Successfully!')
@@ -437,7 +438,32 @@ def logout():
 @login_required
 def dashboard():
     m_log.info('/dashboard')
-    return render_template('dashboard.html')
+    form = UserForm()
+    id = current_user.id
+    user_to_update = User.query.get_or_404(id)
+    if request.method == "POST":
+        user_to_update.name = request.form['name']
+        user_to_update.email = request.form['email']
+        user_to_update.favorite_color = request.form['favorite_color']
+        user_to_update.username = request.form['username']
+        try:
+            db.session.commit()
+            flash('Form Update Successfully!')
+            return render_template("dashboard.html",
+                                   form=form,
+                                   user_to_update=user_to_update,
+                                   id=id)
+        except:
+            flash('Form Update Error!')
+            return render_template("dashboard.html",
+                                   form=form,
+                                   user_to_update=user_to_update)
+
+    else:
+        return render_template('dashboard.html',
+                               form=form,
+                               user_to_update=user_to_update,
+                               id=id)
 
 
 # обработка ошибок
