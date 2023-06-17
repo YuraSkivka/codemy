@@ -4,3 +4,9 @@ Error: Could not locate a Flask application. Use the 'flask --app' option, 'FLAS
 flask --app <server_name> db init
 flask --app <server_name> db migrate --message "Ititial Migration"
 flask --app <server_name> db upgrade
+
+в виртуальном окружении может может быть ошибка, когда не знает команду flask
+python -m flask db init
+python -m flask db migrate
+python -m flask db upgrade
+

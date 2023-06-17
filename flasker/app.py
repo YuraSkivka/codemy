@@ -40,6 +40,8 @@ db = SQLAlchemy()
 db.init_app(app)
 # for migrate
 migrate = Migrate(app, db, render_as_batch=True)
+
+
 # migration
 # migrate.init_app(app, db)
 
@@ -211,7 +213,10 @@ def add_user():
         if User.query.filter_by(email=form.email.data).first() is None:
             # hash password
             hashed_PW = generate_password_hash(form.password_hash.data, "sha256")
-            user = User(username=form.username.data, name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
+            user = User(username=form.username.data,
+                        name=form.name.data,
+                        email=form.email.data,
+                        favorite_color=form.favorite_color.data,
                         password_hash=hashed_PW)
             db.session.add(user)
             db.session.commit()
@@ -309,6 +314,7 @@ def post(id):
     post = Posts.query.get_or_404(id)
     return render_template("post.html", post=post)
 
+
 @app.route("/posts/edit/<int:id>", methods=["GET", "POST"])
 def edit_post(id):
     m_log.info(f"open /edit_post")
@@ -330,6 +336,7 @@ def edit_post(id):
     form.slug.data = post.slug
     return render_template('edit_post.html', form=form)
 
+
 @app.route("/posts/delete/<int:id>", methods=["GET", "POST"])
 def delete_post(id):
     m_log.info(f"open /delete_post")
@@ -337,7 +344,6 @@ def delete_post(id):
     try:
         db.session.delete(post_to_delete)
         db.session.commit()
-
 
         flash('Post Was Delete Successfully!')
         posts = Posts.query.order_by(Posts.date_added)
@@ -348,6 +354,7 @@ def delete_post(id):
         posts = Posts.query.order_by(Posts.date_added)
         return render_template("posts.html", posts=posts)
 
+
 # Add Posts Page
 @app.route('/add_post', methods=["GET", "POST"])
 def add_post():
@@ -355,7 +362,10 @@ def add_post():
     form = PostForm()
 
     if form.validate_on_submit():
-        post = Posts(title=form.title.data, content=form.content.data, author=form.author.data, slug=form.slug.data)
+        post = Posts(title=form.title.data,
+                     content=form.content.data,
+                     author=form.author.data,
+                     slug=form.slug.data)
         # clear the form
         form.title.data = ''
         form.content.data = ''
@@ -370,7 +380,7 @@ def add_post():
     return render_template("add_post.html", form=form)
 
 
-#flask login stuf
+# flask login stuf
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -380,11 +390,13 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
 # create login form
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField('Submit')
+
 
 # create login page
 @app.route('/login', methods=['GET', 'POST'])
@@ -408,8 +420,6 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-
 # create logout page
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
@@ -420,21 +430,12 @@ def logout():
     return redirect(url_for('login'))
 
 
-
 # create dashboard page
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
     m_log.info('/dashboard')
     return render_template('dashboard.html')
-
-
-
-
-
-
-
-
 
 
 # обработка ошибок
