@@ -2,11 +2,6 @@ import os
 from MakeLog import MakeLog
 # pip install flask
 from flask import Flask, render_template, flash, request, redirect, jsonify, url_for
-# pip install flask-wtf
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, EqualTo, Length
-from wtforms.widgets import TextArea
 from datetime import datetime, date
 # pip install flask-sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
@@ -15,6 +10,8 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 # pip install Flask-Login
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+# import from self py file
+from webforms import NameForm, PasswordForm, UserForm, PostForm, LoginForm
 
 HOME = os.path.expanduser("~")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -95,19 +92,6 @@ with app.app_context():
     db.create_all()
 
 
-# create a form class
-# https://flask.palletsprojects.com/en/2.2.x/patterns/wtforms/
-# https://flask-wtf.readthedocs.io/en/1.0.x/api/#module-flask_wtf
-# https://wtforms.readthedocs.io/en/3.0.x/fields/
-class NameForm(FlaskForm):
-    name = StringField("What is Your Name", validators=[DataRequired()])
-    submit = SubmitField('Submit')
-
-
-class PasswordForm(FlaskForm):
-    email = StringField("What is Your Email", validators=[DataRequired()])
-    password_hash = PasswordField("What is Your Password", validators=[DataRequired()])
-    submit = SubmitField('Submit')
 
 
 # Bootstrap
@@ -192,15 +176,7 @@ def test_pw():
                            form=form)
 
 
-class UserForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    username = StringField("Username", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
-    favorite_color = StringField("Favorite Colore")
-    password_hash = PasswordField('Your password',
-                                  validators=[DataRequired(), EqualTo('password_hash2', message='password must mach ')])
-    password_hash2 = PasswordField('Confirm password', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+
 
 
 @app.route('/user/add', methods=["GET", "POST"])
@@ -292,13 +268,7 @@ def delete(id):
                                our_users=our_users)
 
 
-# Create Post Form
-class PostForm(FlaskForm):
-    title = StringField("Title", validators=[DataRequired()])
-    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
-    author = StringField("Author", validators=[DataRequired()])
-    slug = StringField("Slug", validators=[DataRequired()])
-    submit = SubmitField('Submit')
+
 
 
 @app.route('/posts')
@@ -394,11 +364,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# create login form
-class LoginForm(FlaskForm):
-    username = StringField("Username", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField('Submit')
+
 
 
 # create login page
