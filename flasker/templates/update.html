@@ -11,23 +11,13 @@ UserUpdate
         {{ massage }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-
     {% endfor %}
 
-    {% if name  %}
-        <h1> User Update {{ name }}!!! </h1>
-        <br/>
-        {% for user in our_users  %}
-        <li>
-            {{ user.name }}
-            {{ user.email }}
-            {{ user.favorite_color }}
-	    </li>
-        {% endfor  %}
+{% if id == current_user.id %}
 
-    {% else %}
     <h1>User Update</h1>
     <br>
+
 <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
     <form action="/update/{{ user_to_update.id }}" method="POST">
         {{ form.hidden_tag() }}
@@ -48,8 +38,19 @@ UserUpdate
         <a href="{{ url_for('delete', id=id) }}" class="btn btn-danger">Delete</a>
     </form>
 </div>
-<br><br><br>
+{% else %}
 
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        Sorry, you can't edit this user
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <br>
+    Id to Update: {{ id }}<br>
+    Current Id: {{ current_user.id }}
+    <br><br>
+    <h2>Access Denied!</h2>
+    <p>Sorry, you cannot acces this user profile...</p>
 
-    {% endif %}
+{% endif %}
+
 {% endblock %}
