@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # pip install Flask-Login
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 # import from self py file
-from webforms import NameForm, PasswordForm, UserForm, PostForm, LoginForm
+from webforms import NameForm, PasswordForm, UserForm, PostForm, LoginForm, SearchForm
 
 HOME = os.path.expanduser("~")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -53,11 +53,13 @@ class Posts(db.Model):
     slug = db.Column(db.String(255), nullable=False)
     # foreigen key to link user (refer to primary key of the user)
     poster_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    def __init__(self, title, content,slug, poster_id):
+
+    def __init__(self, title, content, slug, poster_id):
         self.title = title
         self.content = content
         self.slug = slug
         self.poster_id = poster_id
+
 
 # Create Model
 class User(db.Model, UserMixin):
@@ -71,7 +73,6 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(100), nullable=False)
     # User can have many posts
     posts = db.relationship('Posts', backref='poster')
-
 
     @property
     def password(self):
@@ -99,8 +100,6 @@ class User(db.Model, UserMixin):
 # db create
 with app.app_context():
     db.create_all()
-
-
 
 
 # Bootstrap
@@ -183,9 +182,6 @@ def test_pw():
                            pw_to_check=pw_to_check,
                            passed=passed,
                            form=form)
-
-
-
 
 
 @app.route('/user/add', methods=["GET", "POST"])
@@ -277,9 +273,6 @@ def delete(id):
                                our_users=our_users)
 
 
-
-
-
 @app.route('/posts')
 def posts():
     m_log.info(f"open /posts")
@@ -347,6 +340,7 @@ def delete_post(id):
         posts = Posts.query.order_by(Posts.date_added)
         return render_template("posts.html", posts=posts)
 
+
 # Add Posts Page
 @app.route('/add_post', methods=["GET", "POST"])
 # @login_required
@@ -383,9 +377,6 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
-
 
 
 # create login page
@@ -476,6 +467,30 @@ def get_current_date():
     }
     return jsonify(favorite_pizza)
     # return {"Date": date.today()}
+
+
+# pass stuf to navbar
+@app.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
+
+# search function
+@app.route('/search', methods=["POST"])
+def search():
+    form = SearchForm()
+    posts = Posts.query
+    if form.validate_on_submit():
+        # get data from submit
+        post.searched = form.searched.data
+        # query the db
+        posts = posts.filter(Posts.content.like('%' + post.searched + '%'))
+        posts = posts.order_by(Posts.title).all()
+
+        return render_template("search.html",
+                               form=form,
+                               searched=post.searched,
+                               posts=posts)
 
 
 if __name__ == '__main__':
