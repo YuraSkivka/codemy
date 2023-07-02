@@ -12,6 +12,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 # import from self py file
 from webforms import NameForm, PasswordForm, UserForm, PostForm, LoginForm, SearchForm
+#  pip install flask-ckeditor
+from flask_ckeditor import CKEditor
 
 HOME = os.path.expanduser("~")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -20,6 +22,9 @@ m_log = MakeLog.logger
 # create the flask instance
 # https://flask.palletsprojects.com/en/1.1.x/config/
 app = Flask(__name__)
+# CKEditor
+ckeditor = CKEditor(app)
+
 # configure the SQLite database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + os.path.join(BASE_DIR, 'flask.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
