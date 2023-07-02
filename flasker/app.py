@@ -488,6 +488,7 @@ def search():
     if form.validate_on_submit():
         # get data from submit
         post.searched = form.searched.data
+        m_log.info(f"open /search {post.searched}")
         # query the db
         posts = posts.filter(Posts.content.like('%' + post.searched + '%'))
         posts = posts.order_by(Posts.title).all()
@@ -497,6 +498,17 @@ def search():
                                searched=post.searched,
                                posts=posts)
 
+# admin page
+@app.route('/admin')
+@login_required
+def admin():
+    m_log.info("open /admin")
+    id = current_user.id
+    if id == 1:
+        return render_template("admin.html")
+    else:
+        flash("Sorry, you mast be admin")
+        return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     m_log.info("start server")
