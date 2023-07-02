@@ -73,6 +73,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     favorite_color = db.Column(db.String(100))
+    about_author = db.Column(db.Text(500))
     date_added = db.Column(db.DateTime, default=datetime.now())
     # DO SOME user stuff
     password_hash = db.Column(db.String(100), nullable=False)
@@ -90,11 +91,12 @@ class User(db.Model, UserMixin):
     def verify_password(self, p):
         return check_password_hash(self.password_hash, p)
 
-    def __init__(self, username, name, email, favorite_color, password_hash):
+    def __init__(self, username, name, email, favorite_color, about_author, password_hash):
         self.username = username
         self.name = name
         self.email = email
         self.favorite_color = favorite_color
+        self.about_author = about_author
         self.password_hash = password_hash
 
     # Create a String
@@ -203,6 +205,7 @@ def add_user():
                         name=form.name.data,
                         email=form.email.data,
                         favorite_color=form.favorite_color.data,
+                        about_author=form.about_author.data,
                         password_hash=hashed_PW)
             db.session.add(user)
             db.session.commit()
@@ -211,6 +214,7 @@ def add_user():
         form.username.data = ''
         form.email.data = ''
         form.favorite_color.data = ''
+        form.about_author.data = ''
         form.password_hash.data = ''
         form.password_hash2.data = ''
         flash('User Added Successfully!')
@@ -231,6 +235,7 @@ def update(id):
         user_to_update.name = request.form['name']
         user_to_update.email = request.form['email']
         user_to_update.favorite_color = request.form['favorite_color']
+        user_to_update.about_author = request.form['about_author']
         user_to_update.username = request.form['username']
         try:
             db.session.commit()
@@ -428,6 +433,7 @@ def dashboard():
         user_to_update.name = request.form['name']
         user_to_update.email = request.form['email']
         user_to_update.favorite_color = request.form['favorite_color']
+        user_to_update.about_author = request.form['about_author']
         user_to_update.username = request.form['username']
         try:
             db.session.commit()
