@@ -19,7 +19,7 @@ UserUpdate
     <br>
 
 <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
-    <form action="/update/{{ user_to_update.id }}" method="POST">
+    <form action="/update/{{ user_to_update.id }}" method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
         {{ form.name.label(class="form-label") }}

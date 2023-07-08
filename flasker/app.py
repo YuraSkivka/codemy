@@ -1,4 +1,6 @@
 import os
+import uuid
+
 from MakeLog import MakeLog
 # pip install flask
 from flask import Flask, render_template, flash, request, redirect, jsonify, url_for
@@ -8,12 +10,14 @@ from flask_sqlalchemy import SQLAlchemy
 # pip install Flask-Migrate
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 # pip install Flask-Login
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 # import from self py file
 from webforms import NameForm, PasswordForm, UserForm, PostForm, LoginForm, SearchForm
 #  pip install flask-ckeditor
 from flask_ckeditor import CKEditor
+
 
 HOME = os.path.expanduser("~")
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -43,10 +47,11 @@ db.init_app(app)
 # for migrate
 migrate = Migrate(app, db, render_as_batch=True)
 
-
 # migration
 # migrate.init_app(app, db)
 
+UPLOAD_IMAGE='static/images/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_IMAGE
 
 # Create a Blog Post model
 class Posts(db.Model):
@@ -75,6 +80,7 @@ class User(db.Model, UserMixin):
     favorite_color = db.Column(db.String(100))
     about_author = db.Column(db.Text(500))
     date_added = db.Column(db.DateTime, default=datetime.now())
+    profile_pic = db.Column(db.String())
     # DO SOME user stuff
     password_hash = db.Column(db.String(100), nullable=False)
     # User can have many posts
@@ -91,13 +97,14 @@ class User(db.Model, UserMixin):
     def verify_password(self, p):
         return check_password_hash(self.password_hash, p)
 
-    def __init__(self, username, name, email, favorite_color, about_author, password_hash):
+    def __init__(self, username, name, email, favorite_color, about_author, password_hash, profile_pic):
         self.username = username
         self.name = name
         self.email = email
         self.favorite_color = favorite_color
         self.about_author = about_author
         self.password_hash = password_hash
+        self.profile_pic = profile_pic
 
     # Create a String
     def __repr__(self):
@@ -237,6 +244,12 @@ def update(id):
         user_to_update.favorite_color = request.form['favorite_color']
         user_to_update.about_author = request.form['about_author']
         user_to_update.username = request.form['username']
+        user_to_update.profile_pic = request.files['profile_pic']
+        # grab image name
+        pic_filemame = secure_filename(user_to_update.profile_pic.filename)
+        # set uuid
+        pic_name = f"{str(uuid.uuid1())}_{pic_filemame}"
+        user_to_update.profile_pic = pic_name
         try:
             db.session.commit()
             flash('Form Update Successfully!')
@@ -435,6 +448,26 @@ def dashboard():
         user_to_update.favorite_color = request.form['favorite_color']
         user_to_update.about_author = request.form['about_author']
         user_to_update.username = request.form['username']
+        # user_to_update.profile_pic = request.files['profile_pic']
+
+        # grab image name
+        pic_filemame = secure_filename(request.files['profile_pic'].filename)
+        # pic_filemame = secure_filename(user_to_update.profile_pic.filename)
+        # set uuid
+        pic_name = f"{str(uuid.uuid1())}_{pic_filemame}"
+        m_log.info(pic_name)
+        try:
+            # save image
+            saver = request.files['profile_pic']
+            saver.save(os.path.join(app.config['UPLOAD_FOLDER']), pic_name)
+        except:
+            flash('Image Update Error!')
+            return render_template("dashboard.html",
+                                   form=form,
+                                   user_to_update=user_to_update)
+
+
+        user_to_update.profile_pic = pic_name
         try:
             db.session.commit()
             flash('Form Update Successfully!')

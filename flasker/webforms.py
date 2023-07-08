@@ -4,6 +4,7 @@ from wtforms import StringField, SubmitField, TextAreaField, PasswordField, Bool
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms.widgets import TextArea
 from flask_ckeditor import CKEditorField
+from flask_wtf.file import  FileField
 
 # create a form class
 # https://flask.palletsprojects.com/en/2.2.x/patterns/wtforms/
@@ -28,6 +29,7 @@ class UserForm(FlaskForm):
     password_hash = PasswordField('Your password',
                                   validators=[DataRequired(), EqualTo('password_hash2', message='password must mach ')])
     password_hash2 = PasswordField('Confirm password', validators=[DataRequired()])
+    profile_pic = FileField("Profile Pic")
     submit = SubmitField('Submit')
 
 
