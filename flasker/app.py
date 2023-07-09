@@ -452,25 +452,25 @@ def dashboard():
         user_to_update.about_author = request.form['about_author']
         user_to_update.username = request.form['username']
         # user_to_update.profile_pic = request.files['profile_pic']
+        if request.files['profile_pic']:
+            # grab image name
+            pic_filemame = secure_filename(request.files['profile_pic'].filename)
+            # pic_filemame = secure_filename(user_to_update.profile_pic.filename)
+            # set uuid
+            pic_name = f"{str(uuid.uuid1())}_{pic_filemame}"
+            m_log.info(pic_name)
+            try:
+                # save image
+                saver = request.files['profile_pic']
+                saver.save(os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
+            except:
+                flash('Image Update Error!')
+                return render_template("dashboard.html",
+                                       form=form,
+                                       user_to_update=user_to_update)
 
-        # grab image name
-        pic_filemame = secure_filename(request.files['profile_pic'].filename)
-        # pic_filemame = secure_filename(user_to_update.profile_pic.filename)
-        # set uuid
-        pic_name = f"{str(uuid.uuid1())}_{pic_filemame}"
-        m_log.info(pic_name)
-        try:
-            # save image
-            saver = request.files['profile_pic']
-            saver.save(os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
-        except:
-            flash('Image Update Error!')
-            return render_template("dashboard.html",
-                                   form=form,
-                                   user_to_update=user_to_update)
 
-
-        user_to_update.profile_pic = pic_name
+            user_to_update.profile_pic = pic_name
         try:
             db.session.commit()
             flash('Form Update Successfully!')
