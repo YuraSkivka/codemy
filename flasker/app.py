@@ -462,7 +462,7 @@ def dashboard():
         try:
             # save image
             saver = request.files['profile_pic']
-            saver.save(os.path.join(app.config['UPLOAD_FOLDER']), pic_name)
+            saver.save(os.path.join(app.config['UPLOAD_FOLDER'], pic_name))
         except:
             flash('Image Update Error!')
             return render_template("dashboard.html",
