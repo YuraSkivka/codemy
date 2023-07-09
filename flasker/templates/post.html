@@ -24,9 +24,33 @@ Posts
         <small>By: {{ post.poster.name }}<br>
             {{ post.date_added }}</small> <br><br>
         <p>{{ post.content|safe }}</p>
-        {% if post.poster.about_author %}
-            <p>Abouth Author: {{ post.poster.about_author }}</p>
-        {% endif %}
+
+        <div class="card mb-3">
+            <div class="row no-gutters">
+                <div class="col-md-2">
+                    {% if post.poster.profile_pic %}
+                        <img src="{{ url_for('static', filename='images/' + post.poster.profile_pic) }}" alt="" width="150" align="left">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/default_user.jpg') }}" alt="" width="150" align="left">
+                    {% endif %}
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.poster.name }}</h5>
+                        <p class="card-text">
+                            {% if post.poster.about_author %}
+                                Abouth Author: {{ post.poster.about_author }}
+                            {% else %}
+                                Author don't have profile yet
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
     </div>
 
