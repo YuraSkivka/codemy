@@ -1,0 +1,7 @@
+Scripts/activate.bat
+
+django-admin startproject myclub_website
+
+python .\manage.py startapp events
+
+python .\manage.py runserver
